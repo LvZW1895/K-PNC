@@ -809,7 +809,8 @@ MatrixXd Demapping::dp_pnc_qpsk(Matrix<complex<double>, Dynamic, Dynamic> Rx_sig
 	pnc_a << nc[index1],
 		nc[index2];
 	//cout << pnc_a << endl;
-	MatrixXd divpnc_a = pnc_a.inverse();
+	MatrixXd divpnc_a_tmp = pnc_a.inverse();
+	MatrixXd divpnc_a = divpnc_a_tmp.array().abs();
 	//cout << divpnc_a << endl;
 	for (int i = 0; i < Rx_sig.rows(); i++)
 	{
@@ -825,21 +826,21 @@ MatrixXd Demapping::dp_pnc_qpsk(Matrix<complex<double>, Dynamic, Dynamic> Rx_sig
 		VectorXd tmp1(2), tmp2(2), tmp(4);
 		tmp1 = nc[index1] * r1;
 		tmp2 = nc[index2] * r2;
-		/*	tmp1(0) = (int)tmp1(0) % 2;
+		tmp1(0) = (int)tmp1(0) % 2;
 		tmp1(1) = (int)tmp1(1) % 2;
 		tmp2(0) = (int)tmp2(0) % 2;
-		tmp2(1) = (int)tmp2(1) % 2;*/
+		tmp2(1) = (int)tmp2(1) % 2;
 		tmp << tmp1,
 			tmp2;
 		VectorXd res_v = divpnc_a*tmp;
-		/*res(2 * i, 0) = (int)res_v(0)%2;
+		res(2 * i, 0) = (int)res_v(0)%2;
 		res(2 * i + 1, 0) = (int)res_v(1)%2;
 		res(2 * i, 1) = (int)res_v(2)%2;
-		res(2 * i + 1, 1) = (int)res_v(3)%2;*/
-		res(2 * i, 0) = (int)res_v(0);
+		res(2 * i + 1, 1) = (int)res_v(3)%2;
+		/*res(2 * i, 0) = (int)res_v(0);
 		res(2 * i + 1, 0) = (int)res_v(1);
 		res(2 * i, 1) = (int)res_v(2);
-		res(2 * i + 1, 1) = (int)res_v(3);
+		res(2 * i + 1, 1) = (int)res_v(3);*/
 	}
 
 
@@ -1092,12 +1093,12 @@ MatrixXd Demapping::dp_pnc_qpsk(Matrix<complex<double>, Dynamic, Dynamic> Rx_sig
 	
 	
 	
-	//cout << data1 << endl;
-	//cout << "----------" << endl;
-	//cout << clures1 << endl;
-	//cout << "----------" << endl;
-	//cout << data2 << endl;
-	//cout << "----------" << endl;
-	//cout<< clures2 << endl;
+	cout << data1 << endl;
+	cout << "----------" << endl;
+	cout << clures1 << endl;
+	cout << "----------" << endl;
+	cout << data2 << endl;
+	cout << "----------" << endl;
+	cout<< clures2 << endl;
 	return res;
 }

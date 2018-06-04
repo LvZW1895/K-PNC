@@ -10,7 +10,7 @@
 int main()
 {
 	//srand((unsigned int)time(NULL));
-	srand(20180520);
+	srand(20180529);
 	ofstream log;
 	int type =PNC;
 	int modtype = QPSK;
@@ -53,13 +53,14 @@ int main()
 	VectorXd sigma2 = N0 / 2;
 	VectorXd sigma = sigma2.array().sqrt();
 	VectorXi msg_u1(msg_len), msg_u2(msg_len);
-	Matrix<complex<double>, Dynamic, Dynamic> A;
-	A = channel.CreatH();
+	Matrix<complex<double>, Dynamic, Dynamic> A[100];
+	//A = channel.CreatH();
 	/*A << 1, 1,
 		0, 1;*/
+    //cout << A << endl;
 	cout << "#EsN0dB       #err         SER" << endl;
 	
-	//cout << A << endl;
+	
 	ostringstream oss;
 	oss << "nidealcomp_result" << qtbits << "_ber.txt";
 	ostringstream oss1;
@@ -99,12 +100,12 @@ int main()
 		break;
 	}
 	
-	//for (int k = 0; k <block_num; k++)
-	//{
-	//	A[k]= channel.CreatH();
-	//	cout << A[k] << endl;
-	//}
-	for (int k = 0; k < EsN0dB.size(); k++)
+	for (int k = 0; k <block_num; k++)
+	{
+		A[k]= channel.CreatH();
+		//cout << A[k] << endl;
+	}
+	for (int k = 0; k <EsN0dB.size(); k++)
 	{
 		error = 0;
 		total_bit = 0;
@@ -143,7 +144,7 @@ int main()
 			//======================================
 			// Channel
 			//======================================
-			Matrix<complex<double>, Dynamic, Dynamic> Rx_sig = channel.AWGN(sigma(k), cv_txsig_u1, cv_txsig_u2, A);
+			Matrix<complex<double>, Dynamic, Dynamic> Rx_sig = channel.AWGN(sigma(k), cv_txsig_u1, cv_txsig_u2, A[i]);
 			//======================================
 			// PNC Demapping
 			//======================================
@@ -192,7 +193,7 @@ int main()
 					//res = dp.dp_comp_bpsk(Rx_sig, A);
 					break;
 				case QPSK:
-					res = dp.dp_comp_qpsk(Rx_sig, A);
+					res = dp.dp_comp_qpsk(Rx_sig, A[i]);
 					break;
 				default:
 					break;
@@ -210,7 +211,7 @@ int main()
 					qt_rx= qt.quantize(Rx_sig,qtbits,2.0*sqrt(2),-2.0*sqrt(2));
 					//A = qt.quantizeH(A,4);
 					//cout << A << endl;
-					res = dp.dp_comp_qpsk(qt_rx, A);
+					res = dp.dp_comp_qpsk(qt_rx, A[i]);
 					break;
 				default:
 					break;
@@ -224,7 +225,7 @@ int main()
 					//res = dp.dp_pnc_bpsk(Rx_sig);
 					break;
 				case QPSK:	
-					res = dp.dp_llr_qpsk(Rx_sig, A, sigma(k),qtbits);
+					res = dp.dp_llr_qpsk(Rx_sig, A[i], sigma(k),qtbits);
 					break;
 				default:
 					break;
@@ -238,7 +239,7 @@ int main()
 					//res = dp.dp_pnc_bpsk(Rx_sig);
 					break;
 				case QPSK:
-					  res = dp.dp_pnc_qpsk(Rx_sig,A);
+					  res = dp.dp_pnc_qpsk(Rx_sig,A[i]);
 					  break;
 				default:
 					break;
