@@ -46,70 +46,70 @@ MatrixXd Kmean::randcent(MatrixXd data,int k)
 }
 
 
-//MatrixXd Kmean::kmeans(MatrixXd data,int k)
-//{
-//	int m = data.rows();
-//	VectorXi cluster(m);
-//	cluster.setZero(m);
-//	//cout << data.row(0) << endl;
-//	//cout << cluster << endl;
-//	MatrixXd centroids = randcent(data, k);
-//	bool clusterchanged = true;
-//	//cout << centroids << endl;
-//	while (clusterchanged)
-//	{
-//		clusterchanged = false;
-//		for (int i = 0; i < m; i++)
-//		{
-//			double mindist = MAX_VALUE;
-//			int minindex = 0;
-//			for (int j = 0; j < k; j++)
-//			{
-//				double distji = dist(centroids.row(j), data.row(i));
-//				if (distji < mindist)
-//				{
-//					mindist = distji;
-//					minindex = j;
-//				}
-//			}
-//			if (cluster(i) != minindex)
-//			{
-//				clusterchanged = true;
-//				cluster(i) = minindex;
-//			}
-//		}
-//	//	cout << cluster << endl;
-//		cout << centroids << endl;
-//		cout << "-----------" << endl;
-//		for (int i = 0; i < k; i++)
-//		{
-//			MatrixXd sum= MatrixXd::Zero(1, data.cols());
-//			int n = 0;
-//			for (int j = 0; j < m; j++)
-//			{
-//				if (cluster(j) == i)
-//				{
-//					//cout << "yes" << endl;
-//					//cout << data.row(j) << endl;
-//					sum+= data.row(j);
-//					n++;
-//				}
-//			}
-//			//cout << sum << endl;
-//			if (n > 0)
-//			{
-//				centroids.row(i) = sum / n;
-//			}
-//			else
-//			{
-//				//centroids.row(k) = sum / 0.001;
-//			}
-//					
-//		}
-//
-//	}
-//	return centroids;
-//}
+VectorXi Kmean::kmean(MatrixXd data,int k)
+{
+	int m = data.rows();
+	VectorXi cluster(m);
+	cluster.setZero(m);
+	//cout << data.row(0) << endl;
+	//cout << cluster << endl;
+	MatrixXd centroids = randcent(data, k);
+	bool clusterchanged = true;
+	//cout << centroids << endl;
+	while (clusterchanged)
+	{
+		clusterchanged = false;
+		for (int i = 0; i < m; i++)
+		{
+			double mindist = MAX_VALUE;
+			int minindex = 0;
+			for (int j = 0; j < k; j++)
+			{
+				double distji = dist(centroids.row(j), data.row(i));
+				if (distji < mindist)
+				{
+					mindist = distji;
+					minindex = j;
+				}
+			}
+			if (cluster(i) != minindex)
+			{
+				clusterchanged = true;
+				cluster(i) = minindex;
+			}
+		}
+		//cout << cluster << endl;
+		cout << centroids << endl;
+		cout << "-----------" << endl;
+		for (int i = 0; i < k; i++)
+		{
+			MatrixXd sum= MatrixXd::Zero(1, data.cols());
+			int n = 0;
+			for (int j = 0; j < m; j++)
+			{
+				if (cluster(j) == i)
+				{
+					//cout << "yes" << endl;
+					//cout << data.row(j) << endl;
+					sum+= data.row(j);
+					n++;
+				}
+			}
+			//cout << sum << endl;
+			if (n > 0)
+			{
+				centroids.row(i) = sum / n;
+			}
+			else
+			{
+				//centroids.row(k) = sum / 0.001;
+			}
+					
+		}
+
+	}
+	return cluster;
+}
 
 //MatrixXd Kmean::kmeans(MatrixXd data, int k)
 //{
@@ -244,22 +244,107 @@ MatrixXd Kmean::randcent(MatrixXd data,int k)
 //	return cluster;
 //}
 
+//VectorXi Kmean::kmeans(MatrixXd data, int k)
+//{
+//	int m = data.rows();
+//	VectorXi cluster(m);
+//	cluster.setZero(m);
+//	VectorXi cluster_tmp(m);
+//	cluster_tmp.setZero(m);
+//	VectorXi pointstate(m);
+//	pointstate.setOnes(m);
+//	MatrixXd centroids = randcent(data, k);
+//	MatrixXd centroids_tmp = randcent(data,8);
+//	//MatrixXd ijdist(m, m);
+//	VectorXi cancluster(m);
+//	cancluster.setOnes(m);
+//	std::ptrdiff_t i, j;
+//	for (int K = 0; K < 8; K++)
+//	{
+//		double mindist = MAX_VALUE;
+//		int index1, index2;
+//		for (int i = 0; i < m; i++)
+//		{
+//			for (int j = i + 1; j < m; j++)
+//			{
+//				if (pointstate(i) && pointstate(j))
+//				{
+//					double ijdist = dist(data.row(i), data.row(j));
+//					if (ijdist < mindist)
+//					{
+//						mindist = ijdist;
+//						index1 = i;
+//						index2 = j;
+//					}
+//				}
+//				
+//			}
+//		}
+//		cluster_tmp(index1) = K;
+//		cluster_tmp(index2) = K;
+//		pointstate(index1) = 0;
+//		pointstate(index2) = 0;
+//		centroids_tmp.row(K) = (data.row(index1) + data.row(index2)) / 2;
+//	}
+//
+//	VectorXi pointstate_tmp(m/2);
+//	pointstate_tmp.setOnes(m/2);
+//	for (int K = 0; K < 4; K++)
+//	{
+//		double mindist = MAX_VALUE;
+//		int index1, index2;
+//		for (int i = 0; i < m/2; i++)
+//		{
+//			for (int j = i + 1; j < m/2; j++)
+//			{
+//				if (pointstate_tmp(i) && pointstate_tmp(j))
+//				{
+//					double ijdist = dist(centroids_tmp.row(i), centroids_tmp.row(j));
+//					if (ijdist < mindist)
+//					{
+//						mindist = ijdist;
+//						index1 = i;
+//						index2 = j;
+//					}
+//				}
+//
+//			}
+//		}
+//		for (int i = 0; i < m; i++)
+//		{
+//			if (cluster_tmp(i) == index1 || cluster_tmp(i) == index2)
+//			{
+//				cluster(i) = K;
+//			}
+//		}
+//		
+//		pointstate_tmp(index1) = 0;
+//		pointstate_tmp(index2) = 0;
+//
+//		centroids.row(K) = (centroids_tmp.row(index1) + centroids_tmp.row(index2)) / 2;
+//	}
+//
+//
+//	return cluster;
+//}
+
 VectorXi Kmean::kmeans(MatrixXd data, int k)
 {
 	int m = data.rows();
 	VectorXi cluster(m);
 	cluster.setZero(m);
-	VectorXi cluster_tmp(m);
-	cluster_tmp.setZero(m);
+	VectorXi cluster_next(m/2);
+	cluster_next.setZero(m/2);
 	VectorXi pointstate(m);
 	pointstate.setOnes(m);
-	MatrixXd centroids = randcent(data, k);
-	MatrixXd centroids_tmp = randcent(data,8);
+	//MatrixXd centroids = randcent(data, k);
+	MatrixXd centroids = randcent(data, m/2);
 	//MatrixXd ijdist(m, m);
-	VectorXi cancluster(m);
-	cancluster.setOnes(m);
-	std::ptrdiff_t i, j;
-	for (int K = 0; K < 8; K++)
+	//VectorXi cancluster(m);
+	//cancluster.setOnes(m);
+	
+
+	for (int K = 0; K < m/2; K++)
 	{
 		double mindist = MAX_VALUE;
 		int index1, index2;
@@ -277,53 +362,29 @@ VectorXi Kmean::kmeans(MatrixXd data, int k)
 						index2 = j;
 					}
 				}
-				
+
 			}
 		}
-		cluster_tmp(index1) = K;
-		cluster_tmp(index2) = K;
+		cluster(index1) = K;
+		cluster(index2) = K;
 		pointstate(index1) = 0;
 		pointstate(index2) = 0;
-		centroids_tmp.row(K) = (data.row(index1) + data.row(index2)) / 2;
+		centroids.row(K) = (data.row(index1) + data.row(index2)) / 2;
 	}
-
-	VectorXi pointstate_tmp(m/2);
-	pointstate_tmp.setOnes(m/2);
-	for (int K = 0; K < 4; K++)
-	{
-		double mindist = MAX_VALUE;
-		int index1, index2;
-		for (int i = 0; i < m/2; i++)
+	if (m/2 == k)
+		return cluster;
+	else {
+		VectorXi cluster_tmp=cluster;
+		cluster_next = kmeans(centroids, k);
+		//cout << cluster_next << endl;
+		//cout << "--------" << endl;
+		for (int i = 0; i < cluster.size(); i++)
 		{
-			for (int j = i + 1; j < m/2; j++)
-			{
-				if (pointstate_tmp(i) && pointstate_tmp(j))
-				{
-					double ijdist = dist(centroids_tmp.row(i), centroids_tmp.row(j));
-					if (ijdist < mindist)
-					{
-						mindist = ijdist;
-						index1 = i;
-						index2 = j;
-					}
-				}
-
-			}
+			int index_tmp = cluster_tmp(i);
+			cluster(i) = cluster_next(index_tmp);
 		}
-		for (int i = 0; i < m; i++)
-		{
-			if (cluster_tmp(i) == index1 || cluster_tmp(i) == index2)
-			{
-				cluster(i) = K;
-			}
-		}
-		
-		pointstate_tmp(index1) = 0;
-		pointstate_tmp(index2) = 0;
-
-		centroids.row(K) = (centroids_tmp.row(index1) + centroids_tmp.row(index2)) / 2;
 	}
-
+	
 
 	return cluster;
 }

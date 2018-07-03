@@ -16,7 +16,7 @@
 #include <fstream>
 #include <complex>
 #include <time.h>
-
+#include <omp.h>
 using namespace Eigen;
 using namespace std;
 
@@ -26,6 +26,8 @@ using namespace std;
 #define llrCoMP 3
 #define BPSK 0
 #define QPSK 1
+#define QAM16 2
+#define QAM64 3
 #define		MAX_VALUE		9e100
 #define		MIN_VALUE		-9e100
 #define PI 3.1415926

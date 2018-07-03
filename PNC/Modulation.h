@@ -8,5 +8,7 @@ public:
 	~Modulation();
 	VectorXi mod_BPSK(VectorXi msg_bits);
 	Matrix<complex<double>, Dynamic, Dynamic> mod_QPSK(VectorXi msg_bits);
+	Matrix<complex<double>, Dynamic, Dynamic> mod_16QAM(VectorXi msg_bits);
+	Matrix<complex<double>, Dynamic, Dynamic> mod_64QAM(VectorXi msg_bits);
 };
 

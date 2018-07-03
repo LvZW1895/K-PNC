@@ -52,10 +52,10 @@ Matrix<complex<double>, Dynamic, Dynamic> Channel::AWGN(double sigma, Matrix<com
 	Matrix<complex<double>, Dynamic, Dynamic> temp1(Tx_sig1.rows(), Tx_sig1.cols()), temp2(Tx_sig2.rows(), Tx_sig2.cols());
 	for (int i = 0; i < Tx_sig1.rows(); i++)
 	{
-		double n11 =  sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-		double n12 =  sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-		double n21 =  sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-		double n22 =  sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+		double n11 = sqrt(2) / 2 * sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+		double n12 = sqrt(2) / 2 * sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+		double n21 = sqrt(2) / 2 * sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+		double n22 = sqrt(2) / 2 * sigma * sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
 		complex<double> n0_tmp(n11, n12), n1_tmp(n21, n22);
 		noise(i, 0) = n0_tmp;
 		noise(i, 1) = n1_tmp;
@@ -76,14 +76,14 @@ Matrix<complex<double>, Dynamic, Dynamic> Channel::CreatH()
 	Matrix<complex<double>, Dynamic, Dynamic> H(2, 2);
 	double h11r, h12r, h21r, h22r,h11i,h12i,h21i,h22i;
 	double tmp = 0;
-	h11r = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-	h21r = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-	h12r = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-	h22r = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-	h11i = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-	h21i = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-	h12i = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
-	h22i = sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h11r = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h21r = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h12r = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h22r = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h11i = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h21i = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h12i = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
+	h22i = 1 / sqrt(2)*sqrt(-2.0 * log(RandFloat())) * cos(6.283185307 * RandFloat());
 	tmp = sqrt(pow(h11r, 2) + pow(h11i, 2));
 	if (tmp > 1)
 	{

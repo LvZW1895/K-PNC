@@ -13,7 +13,7 @@ int main()
 	srand(20180529);
 	ofstream log;
 	int type =PNC;
-	int modtype = QPSK;
+	int modtype = QAM64;
 	/*switch (type)
 	{
 	case CoMP:
@@ -31,8 +31,8 @@ int main()
 	
 	double relaytime=4.0;
 	double frametime = 1.0;
-	int block_num = 100;
-	int msg_len = 10000;
+	int block_num = 1;
+	int msg_len = 6000;
 	double Es = 1;
 	int total_bit = 0;
 	int error = 0;
@@ -41,7 +41,7 @@ int main()
 	Modulation mod;
 	Channel channel;
 	Quantizer qt;
-	Demapping dp;
+	Demapping dp(modtype);
 	VectorXi EsN0dB=VectorXi::LinSpaced(21,0,20);
 	VectorXd EsN0(21);
 	for (int i = 0; i < 21; i++)
@@ -54,11 +54,13 @@ int main()
 	VectorXd sigma = sigma2.array().sqrt();
 	VectorXi msg_u1(msg_len), msg_u2(msg_len);
 	Matrix<complex<double>, Dynamic, Dynamic> A[100];
+	MatrixXd pnc_a[100];
+	VectorXi clures1[100], clures2[100];
 	//A = channel.CreatH();
 	/*A << 1, 1,
 		0, 1;*/
     //cout << A << endl;
-	cout << "#EsN0dB       #err         SER" << endl;
+	
 	
 	
 	ostringstream oss;
@@ -100,17 +102,42 @@ int main()
 		break;
 	}
 	
-	for (int k = 0; k <block_num; k++)
+	for (int k = 0; k <block_num; ++k)
 	{
 		A[k]= channel.CreatH();
+		//pnc_a[k] = dp.dp_pnc_m16(A[k]);
+		if (modtype == QAM16)
+		{
+			clures1[k] = dp.dp_creat_cluster_16qam(A[k], 16, 1);
+			clures2[k] = dp.dp_creat_cluster_16qam(A[k], 16, 2);
+		}
+		else if (modtype == QAM64)
+		{
+			clures1[k] = dp.dp_creat_cluster_64qam(A[k], 64, 1);
+			clures2[k] = dp.dp_creat_cluster_64qam(A[k], 64, 2);
+		}
+		
 		//cout << A[k] << endl;
 	}
-	for (int k = 0; k <EsN0dB.size(); k++)
+	ofstream log3, log4;
+	log3.open("clures1.txt", ios::trunc | ios::out);
+	log4.open("clures2.txt", ios::trunc | ios::out);
+	for (int i = 0; i < clures1[0].size(); i++)
+	{
+		log3 << clures1[0](i) << endl;
+		log4 << clures2[0](i) << endl;
+	}
+
+	log3.close();
+	log4.close();
+
+	cout << "#EsN0dB       #err         SER" << endl;
+	for (int k = 0; k <EsN0dB.size(); ++k)
 	{
 		error = 0;
 		total_bit = 0;
 		recivebit = 0;
-		for (int i = 0; i < block_num; i++)
+		for (int i = 0; i < block_num; ++i)
 		{
 			//A = channel.CreatH();
 			//======================================
@@ -119,7 +146,7 @@ int main()
 			
 			VectorXd msg_u1_tmp = VectorXd::Random(msg_len) + VectorXd::Constant(msg_len, 1.0);
 			VectorXd msg_u2_tmp = VectorXd::Random(msg_len) + VectorXd::Constant(msg_len, 1.0);
-			for (int j = 0; j< msg_len; j++)
+			for (int j = 0; j< msg_len; ++j)
 			{
 				msg_u1(j) = (int)msg_u1_tmp(j);
 				msg_u2(j) = (int)msg_u2_tmp(j);
@@ -132,15 +159,26 @@ int main()
 			{
 			case BPSK:
 				// cv_txsug_u1 = mod.mod_BPSK(msg_u1);
-				// cv_txsug_u2 = mod.mod_BPSK(msg_u2);
+				 //cv_txsug_u2 = mod.mod_BPSK(msg_u2);
 				break;
 			case QPSK:
 				cv_txsig_u1 = mod.mod_QPSK(msg_u1);
 				cv_txsig_u2 = mod.mod_QPSK(msg_u2);
 				break;
+			case QAM16:
+				cv_txsig_u1 = mod.mod_16QAM(msg_u1);
+				cv_txsig_u2 = mod.mod_16QAM(msg_u2); 
+				break;
+			case QAM64:
+				cv_txsig_u1 = mod.mod_64QAM(msg_u1);
+				cv_txsig_u2 = mod.mod_64QAM(msg_u2);
+				break;
 			default:
 				break;
 			}
+			/*cout << msg_u1 << endl;
+			cout << "----------" << endl;
+			cout << cv_txsig_u1 << endl;*/
 			//======================================
 			// Channel
 			//======================================
@@ -148,42 +186,8 @@ int main()
 			//======================================
 			// PNC Demapping
 			//======================================
-			
-			MatrixXd res,cent,data(16,2);
-
-			/*data << 1.96011, 1.2481,
-				2.0746, -0.138874,
-				0.573136, 1.13361,
-				0.687629, -0.253367,
-				1.13361, -0.573136,
-				1.2481, -1.96011,
-				-0.253367, -0.687629,
-				-0.138874, -2.0746,
-				0.138874, 2.0746,
-				0.253367, 0.687629,
-				-1.2481, 1.96011,
-				-1.13361, 0.573136,
-				-0.687629, 0.253367,
-				-0.573136, -1.13361,
-				-2.0746, 0.138874,
-				-1.96011, -1.2481;*/
-			/*data << -0.755864, 2.64822,
-				1.16766, 2.10046,
-				-1.30363, 0.724696,
-				0.619901, 0.176934,
-				0.724696, 1.30363,
-				2.64822, 0.755864,
-				0.176934, -0.619901,
-				2.10046, -1.16766,
-				-2.10046, 1.16766,
-				-0.176934, 0.619901,
-				-2.64822, -0.755864,
-				-0.724696, -1.30363,
-				-0.619901, -0.176934,
-				1.30363, -0.724696,
-				-1.16766, -2.10046,
-				0.755864, -2.64822;*/
-
+			//cout << Rx_sig << endl;
+			MatrixXd res;
 			Matrix<complex<double>, Dynamic, Dynamic> qt_rx;
 			if (type == CoMP)
 			{
@@ -194,6 +198,9 @@ int main()
 					break;
 				case QPSK:
 					res = dp.dp_comp_qpsk(Rx_sig, A[i]);
+					break;
+				case QAM16:
+					res = dp.dp_comp_16qam(Rx_sig, A[i]);
 					break;
 				default:
 					break;
@@ -239,8 +246,14 @@ int main()
 					//res = dp.dp_pnc_bpsk(Rx_sig);
 					break;
 				case QPSK:
-					  res = dp.dp_pnc_qpsk(Rx_sig,A[i]);
-					  break;
+					res = dp.dp_pnc_qpsk(Rx_sig,A[i],4);
+					break;
+				case QAM16:
+					res= dp.dp_pnc_16qam(Rx_sig, A[i],clures1[i],clures2[i]);
+					break;
+				case QAM64:
+					res = dp.dp_pnc_64qam(Rx_sig, A[i], clures1[i], clures2[i]);
+					break;
 				default:
 					break;
 				}
